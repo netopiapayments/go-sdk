@@ -1,9 +1,7 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/netopiapayments/go-sdk/requests"
@@ -13,11 +11,9 @@ import (
 
 func main() {
 
-	// Set the API Key as an environment variable (optional), can also be set directly in the config.
-	os.Setenv("NETOPIA_API_KEY", "G85osrR3aP2zFoCJPMmTtQSRwaqtbLmnf2SznyEcSkWGTi4SRWeYO36xsvc=")
-
 	// Initialize Netopia Client Configuration
 	cfg := netopia.Config{
+		ApiKey:          "G85osrR3aP2zFoCJPMmTtQSRwaqtbLmnf2SznyEcSkWGTi4SRWeYO36xsvc=",
 		PosSignature:    "2PU4-RWFV-BR5X-0AM4-LQSL", // POS Signature
 		IsLive:          false,                      // false = sandbox | true = production
 		NotifyURL:       "http://yourdomain.com/ipn",
@@ -27,17 +23,10 @@ func main() {
 		PosSignatureSet: []string{"2PU4-RWFV-BR5X-0AM4-LQSL"}, // A list of POS Signatures (allowed)
 	}
 
-	// Initialize Netopia Payment Client based on the configuration above
 	client, err := netopia.NewPaymentClient(cfg)
-
-	// Handle errors
 	if err != nil {
-		switch err {
-		case netopia.ErrMissingAPIKey:
-			fmt.Println("API Key is missing!")
-		default:
-			panic(err)
-		}
+		fmt.Println("Failed to initialize Netopia Payment Client:", err)
+		return
 	}
 
 	// Prepare the StartPayment Request with necessary details
@@ -85,7 +74,7 @@ func main() {
 			PosSignature: cfg.PosSignature,                                // POS signature (also known as POS ID) for this order
 			DateTime:     time.Now().UTC().Format("2006-01-02T15:04:05Z"), // Current date and time but can be any date in future
 			Description:  "DEMO API FROM WEB - SDK",                       // Order description
-			OrderID:      "",                                              // Unique order ID
+			OrderID:      "6",                                             // Unique order ID
 			Amount:       0,                                               // Payment amount
 			Currency:     "RON",                                           // Currency
 			Billing: requests.BillingShipping{
@@ -123,35 +112,44 @@ func main() {
 				Selected:  0,
 				Available: []int{0},
 			},
-			Data: map[string]string{ // Custom data fields
+			Data: map[string]string{
 				"property1": "string",
 				"property2": "string",
 			},
 		},
 	}
 
-	// Validate the StartPaymentRequest before sending it to ensure all required fields are correctly populated
-	err = startReq.Validate()
-	if err != nil {
-		fmt.Println("Request validation failed:", err)
+	if err := startReq.Validate(); err != nil {
+		fmt.Println("StartPaymentRequest validation failed:", err)
 		return
 	}
 
-	// Send the payment request and handle the response (start payment action)
 	startResp, err := client.StartPayment(startReq)
 	if err != nil {
-		fmt.Println("Error:", err)
+		fmt.Println("Failed to start payment:", err)
 		return
 	}
 
-	// For example purpose or/and debugging, you can see JSON Request sent to the enpoint:
-	jsonData, err := json.MarshalIndent(startReq, "", "  ")
-	if err != nil {
-		fmt.Println("Serialization error: ", err)
+	if startResp == nil {
+		fmt.Println("Invalid response: StartPaymentResponse is nil.")
 		return
 	}
-	///////////////////////////////////////////////
 
-	fmt.Println(string(jsonData))
-	fmt.Printf("Start payment response: %+v\n", startResp)
+	if startResp.Payment == nil {
+		fmt.Printf("API Message: %s\n", *startResp.Message)
+		return
+	}
+
+	fmt.Println("Payment initiated successfully!")
+	fmt.Printf("Payment URL: %s\n", startResp.Payment.PaymentURL)
+	fmt.Printf("Payment Token: %s\n", startResp.Payment.Token)
+	fmt.Printf("Payment Status: %d\n", startResp.Payment.Status)
+
+	if startResp.Payment.Binding != nil {
+		fmt.Printf("Card Binding ExpireYear: %d\n", startResp.Payment.Binding.ExpireYear)
+	} else {
+		fmt.Println("No binding information available.")
+	}
+
+	fmt.Println("\nPlease visit the Payment URL to complete your transaction.")
 }

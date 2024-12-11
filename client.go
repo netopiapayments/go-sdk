@@ -1,18 +1,10 @@
 package netopia
 
-import (
-	"os"
-)
-
 type PaymentClient struct {
 	cfg Config
 }
 
 func NewPaymentClient(cfg Config) (*PaymentClient, error) {
-	if cfg.ApiKey == "" {
-		cfg.ApiKey = os.Getenv("NETOPIA_API_KEY")
-	}
-
 	if cfg.ApiKey == "" {
 		return nil, ErrMissingAPIKey
 	}
