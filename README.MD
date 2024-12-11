@@ -63,7 +63,7 @@ To install the SDK, use `go get` to include it in your project:
 
 ```sh
 
-go  get  github.com/x/x
+go get github.com/netopiapayments/go-sdk
 
 ```
 ---
@@ -90,7 +90,7 @@ netopia.Config{
 
 ```go
 
-import  "github.com/x/x"
+import "github.com/netopiapayments/go-sdk"
 
 cfg := netopia.Config {
 	PosSignature: "XXXX-XXXX-XXXX-XXXX",
@@ -260,7 +260,7 @@ func  ipnHandler(w  http.ResponseWriter, r *http.Request) {
 To ensure the SDK functions as expected, comprehensive unit tests are provided. You can run unit tests suit using the following command:
 
 ```bash
-cd project-dir
+cd go-sdk
 go test -v ./tests
 ```
 
@@ -305,8 +305,8 @@ Clone the sample repository and explore for complete use cases:
 
 ```bash
 
-git clone  https://github.com/x/sample.git
-cd  x/sample
+git clone https://github.com/netopiapayments/sample-app-go.git
+cd  sample-app-go
 go  run main.go
 
 ```
