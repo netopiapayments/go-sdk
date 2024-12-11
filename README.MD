@@ -72,22 +72,6 @@ go get github.com/netopiapayments/go-sdk
 
 ### **Initialization**
 
-To initialize the NETOPIA Payments client, configure it with your API Key and POS Signature. 
-
-The API Key can be initialized either as an environment variable or through configuration object:
-
-```go
-// By setting the environment variable:
-os.Setenv("NETOPIA_API_KEY", "YOUR_API_KEY")
-
-// By hydration of the request's config
-netopia.Config{
-	ApiKey: "YOUR_API_KEY",
-}
-
-// WARNING! Setting the request's config will override the environment variable
-```
-
 ```go
 
 import "github.com/netopiapayments/go-sdk"
@@ -116,27 +100,17 @@ if  err != nil {
 
 The `Config` struct contains the following fields:
   
-
 | Field | Type | Required | Description |
-
+|-------|------|----------|-------------|
 | `PosSignature` | `string` | Yes | POS Signature for your NETOPIA account |
-
 | `ApiKey` | `string` | Yes | API key generated in NETOPIA's admin panel |
-
 | `IsLive` | `bool` | No | Whether to use the live environment (`true`) or sandbox (`false`) |
-
 | `NotifyURL` | `string` | Yes | The URL where IPNs (order updates) will be sent |
-
 | `RedirectURL` | `string` | Yes | The URL to redirect the customer after payment |
-
 | `PublicKey` | `[]byte` | Yes | RSA public key provided by NETOPIA for signature verification |
-
 | `ActiveKey` | `string` | Yes | Active key for your merchant account |
-
 | `PosSignatureSet`| `[]string`| Yes | List of allowed POS Signatures |
-
 | `HashMethod` | `string` | No | Hash method for IPN validation (default: `sha512`) |
-
 ---
 
 ## **API Reference**
@@ -295,19 +269,6 @@ if  err != nil {
 			fmt.Println("An error occurred:", err)
 	}
 }
-
-```
----
-
-## **Examples**
-
-Clone the sample repository and explore for complete use cases:
-
-```bash
-
-git clone https://github.com/netopiapayments/sample-app-go.git
-cd  sample-app-go
-go  run main.go
 
 ```
 ---

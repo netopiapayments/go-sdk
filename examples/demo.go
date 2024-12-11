@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/netopiapayments/go-sdk/requests"
@@ -13,30 +12,32 @@ func main() {
 
 	// Initialize Netopia Client Configuration
 	cfg := netopia.Config{
-		ApiKey:          "G85osrR3aP2zFoCJPMmTtQSRwaqtbLmnf2SznyEcSkWGTi4SRWeYO36xsvc=",
-		PosSignature:    "2PU4-RWFV-BR5X-0AM4-LQSL", // POS Signature
-		IsLive:          false,                      // false = sandbox | true = production
-		NotifyURL:       "http://yourdomain.com/ipn",
-		RedirectURL:     "http://yourdomain.com/back", // Redirrect URL after payment
+		ApiKey:          "APIKEY",
+		PosSignature:    "POSID", // POS Signature
+		IsLive:          false,   // false = sandbox | true = production
+		NotifyURL:       "x",
+		RedirectURL:     "x", // Redirrect URL after payment
 		PublicKey:       []byte("-----BEGIN PUBLIC KEY-----\n...publickey...\n-----END PUBLIC KEY-----"),
-		ActiveKey:       "active_key",
-		PosSignatureSet: []string{"2PU4-RWFV-BR5X-0AM4-LQSL"}, // A list of POS Signatures (allowed)
+		ActiveKey:       "ACTIVEKEY",
+		PosSignatureSet: []string{""}, // A list of POS Signatures (allowed)
 	}
 
-	client, err := netopia.NewPaymentClient(cfg)
+	logger := &netopia.DefaultLogger{}
+
+	client, err := netopia.NewPaymentClient(cfg, logger)
 	if err != nil {
-		fmt.Println("Failed to initialize Netopia Payment Client:", err)
+		logger.Errorf("Failed to initialize Netopia Payment Client:", err)
 		return
 	}
 
 	// Prepare the StartPayment Request with necessary details
 	startReq := &requests.StartPaymentRequest{
 		Config: &requests.ConfigData{
-			EmailTemplate: "",              // Email template for notifications
-			EmailSubject:  "",              // Subject for the notification email
-			NotifyURL:     cfg.NotifyURL,   // Notification URL
-			RedirectURL:   cfg.RedirectURL, // Redirect URL
-			Language:      "ro",            // Language for notifications
+			EmailTemplate: "",                   // Email template for notifications
+			EmailSubject:  "",                   // Subject for the notification email
+			NotifyURL:     "http://google.com/", // Notification URL
+			RedirectURL:   "http://google.com/", // Redirect URL
+			Language:      "ro",                 // Language for notifications
 		},
 		Payment: &requests.PaymentData{
 			Options: requests.PaymentOptions{
@@ -45,7 +46,7 @@ func main() {
 			},
 			Instrument: requests.PaymentInstrument{
 				Type:       "card",             // Payment type (e.g., card)
-				Account:    "9900004810225098", // Card number
+				Account:    "9900518572831942", // Card number
 				ExpMonth:   11,                 // Card expiration month
 				ExpYear:    2025,               // Card expiration year
 				SecretCode: "111",              // Card CVC/CVV
@@ -74,7 +75,7 @@ func main() {
 			PosSignature: cfg.PosSignature,                                // POS signature (also known as POS ID) for this order
 			DateTime:     time.Now().UTC().Format("2006-01-02T15:04:05Z"), // Current date and time but can be any date in future
 			Description:  "DEMO API FROM WEB - SDK",                       // Order description
-			OrderID:      "6",                                             // Unique order ID
+			OrderID:      "8",                                             // Unique order ID
 			Amount:       0,                                               // Payment amount
 			Currency:     "RON",                                           // Currency
 			Billing: requests.BillingShipping{
@@ -120,36 +121,41 @@ func main() {
 	}
 
 	if err := startReq.Validate(); err != nil {
-		fmt.Println("StartPaymentRequest validation failed:", err)
+		logger.Errorf("StartPaymentRequest validation failed:", err)
 		return
 	}
 
 	startResp, err := client.StartPayment(startReq)
 	if err != nil {
-		fmt.Println("Failed to start payment:", err)
+		logger.Errorf("Failed to start payment:", err)
 		return
 	}
 
 	if startResp == nil {
-		fmt.Println("Invalid response: StartPaymentResponse is nil.")
+		logger.Errorf("Invalid response: StartPaymentResponse is nil.")
 		return
 	}
 
 	if startResp.Payment == nil {
-		fmt.Printf("API Message: %s\n", *startResp.Message)
+		logger.Debugf("API Message: %s\n", *startResp.Message)
 		return
 	}
 
-	fmt.Println("Payment initiated successfully!")
-	fmt.Printf("Payment URL: %s\n", startResp.Payment.PaymentURL)
-	fmt.Printf("Payment Token: %s\n", startResp.Payment.Token)
-	fmt.Printf("Payment Status: %d\n", startResp.Payment.Status)
-
-	if startResp.Payment.Binding != nil {
-		fmt.Printf("Card Binding ExpireYear: %d\n", startResp.Payment.Binding.ExpireYear)
+	if startResp.Error.Code == "00" {
+		logger.Infof("Payment initiated successfully!")
+		logger.Infof("\nPlease visit the Payment URL to complete your transaction.")
 	} else {
-		fmt.Println("No binding information available.")
+		logger.Infof("Payment has errors!")
+		logger.Debugf("Error message: %s\n", startResp.Error.Message)
 	}
 
-	fmt.Println("\nPlease visit the Payment URL to complete your transaction.")
+	logger.Debugf("Payment URL: %s\n", startResp.Payment.PaymentURL)
+	logger.Debugf("Payment Token: %s\n", startResp.Payment.Token)
+	logger.Debugf("Payment Status: %d\n", startResp.Payment.Status)
+
+	if startResp.Payment.Binding != nil {
+		logger.Debugf("Card Binding ExpireYear: %d\n", startResp.Payment.Binding.ExpireYear)
+	} else {
+		logger.Debugf("No binding information available.")
+	}
 }

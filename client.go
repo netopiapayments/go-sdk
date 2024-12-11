@@ -1,19 +1,23 @@
 package netopia
 
 type PaymentClient struct {
-	cfg Config
+	cfg    Config
+	logger Logger
 }
 
-func NewPaymentClient(cfg Config) (*PaymentClient, error) {
-	if cfg.ApiKey == "" {
-		return nil, ErrMissingAPIKey
+func NewPaymentClient(cfg Config, logger Logger) (*PaymentClient, error) {
+	if err := cfg.Validate(); err != nil {
+		return nil, err
+	}
+	if logger == nil {
+		logger = &DefaultLogger{}
 	}
 
-	if cfg.PosSignature == "" {
-		return nil, ErrMissingPosSignature
-	}
+	return &PaymentClient{cfg: cfg, logger: logger}, nil
+}
 
-	return &PaymentClient{cfg: cfg}, nil
+func (c *PaymentClient) GetLogger() Logger {
+	return c.logger
 }
 
 func (c *PaymentClient) BaseURL() string {

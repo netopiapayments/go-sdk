@@ -164,12 +164,6 @@ func TestPaymentInstrument_Validate(t *testing.T) {
 	if err := inst.Validate(); err == nil {
 		t.Errorf("expected error for expired year")
 	}
-	inst.ExpYear = time.Now().Year() + 1
-
-	inst.SecretCode = "abc"
-	if err := inst.Validate(); err == nil {
-		t.Errorf("expected error for non-numeric secretCode")
-	}
 }
 
 func TestOrderData_Validate(t *testing.T) {

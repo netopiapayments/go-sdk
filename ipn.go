@@ -5,7 +5,6 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"io"
 	"net/http"
 	"strings"
@@ -49,10 +48,21 @@ type IPNVerificationResult struct {
 	Message      string          `json:"message,omitempty"`
 }
 
+type IPNData struct {
+	Payment struct {
+		Status int `json:"status"`
+	} `json:"payment"`
+}
+
 func (c *PaymentClient) VerifyIPN(r *http.Request) (*IPNVerificationResult, error) {
 	verificationToken := r.Header.Get("Verification-token")
 	if verificationToken == "" {
 		return nil, ErrMissingVerification
+	}
+
+	parts := strings.Split(verificationToken, ".")
+	if len(parts) != 3 {
+		return nil, ErrWrongVerificationToken
 	}
 
 	publicKey, err := x509.ParsePKIXPublicKey(c.cfg.PublicKey)
@@ -71,6 +81,9 @@ func (c *PaymentClient) VerifyIPN(r *http.Request) (*IPNVerificationResult, erro
 	}
 
 	token, err := jwt.Parse(verificationToken, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodRSA); !ok {
+			return nil, ErrUnexpectedSigningToken
+		}
 		return publicKey, nil
 	}, jwt.WithLeeway(0), jwt.WithTimeFunc(time.Now))
 	if err != nil {
@@ -93,16 +106,18 @@ func (c *PaymentClient) VerifyIPN(r *http.Request) (*IPNVerificationResult, erro
 		if len(v) == 0 {
 			return nil, ErrEmptyAudience
 		}
-		if audStr, _ := v[0].(string); audStr != "" {
-			actualAud = audStr
+		firstAud, _ := v[0].(string)
+		if firstAud == "" {
+			return nil, ErrEmptyAudience
 		}
+		actualAud = firstAud
 	case string:
 		actualAud = v
 	default:
 		return nil, ErrEmptyAudience
 	}
 
-	if actualAud != c.cfg.ActiveKey {
+	if actualAud != c.cfg.PosSignature {
 		return nil, ErrInvalidAudience
 	}
 
@@ -113,6 +128,7 @@ func (c *PaymentClient) VerifyIPN(r *http.Request) (*IPNVerificationResult, erro
 			break
 		}
 	}
+
 	if !found {
 		return nil, ErrAudienceNotInSet
 	}
@@ -126,13 +142,10 @@ func (c *PaymentClient) VerifyIPN(r *http.Request) (*IPNVerificationResult, erro
 		return nil, ErrPayloadHashMismatch
 	}
 
-	var ipnData struct {
-		Payment struct {
-			Status int `json:"status"`
-		} `json:"payment"`
-	}
+	var ipnData IPNData
+
 	if err := json.Unmarshal(bodyData, &ipnData); err != nil {
-		return nil, errors.New("failed to parse payload")
+		return nil, ErrFailedPayloadParsing
 	}
 
 	result := &IPNVerificationResult{
@@ -153,7 +166,7 @@ func computeHash(hashMethod string, data []byte) (string, error) {
 		sum := sha512.Sum512(data)
 		return base64.StdEncoding.EncodeToString(sum[:]), nil
 	default:
-		return "", errors.New("unsupported hash method")
+		return "", ErrUnsupportedHashMethod
 	}
 }
 
