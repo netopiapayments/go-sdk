@@ -3,10 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"netopia" //NETOPIA SDK
-	"netopia/requests"
 	"os"
 	"time"
+
+	"github.com/netopiapayments/go-sdk/requests"
+
+	netopia "github.com/netopiapayments/go-sdk"
 )
 
 func main() {

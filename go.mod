@@ -1,4 +1,4 @@
-module netopia
+module github.com/netopiapayments/go-sdk
 
 go 1.23.4
 

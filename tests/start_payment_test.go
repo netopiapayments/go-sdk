@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"netopia/requests"
+	"github.com/netopiapayments/go-sdk/requests"
 )
 
 func TestStartPaymentRequest_Validate(t *testing.T) {

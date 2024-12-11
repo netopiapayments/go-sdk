@@ -2,8 +2,9 @@ package netopia
 
 import (
 	"fmt"
-	"netopia/requests"
-	"netopia/responses"
+
+	"github.com/netopiapayments/go-sdk/requests"
+	"github.com/netopiapayments/go-sdk/responses"
 )
 
 func (c *PaymentClient) StartPayment(req *requests.StartPaymentRequest) (*responses.StartPaymentResponse, error) {
