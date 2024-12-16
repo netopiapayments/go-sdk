@@ -282,3 +282,7 @@ if  err != nil {
 - [Demo Cards for Sandbox](https://support.netopia-payments.com/en-us/article/52-carduri-de-test)
 
 ---
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
