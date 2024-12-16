@@ -1,0 +1,19 @@
+linters-settings:
+  golint:
+    min-confidence: 0.8
+
+run:
+  timeout: 5m
+  tests: false
+
+issues:
+  exclude-dirs:
+    - vendor
+    - third_party
+    - external
+    - examples
+    - docs
+    - scripts
+    - tools
+  exclude-files:
+    - ".*_test.go"

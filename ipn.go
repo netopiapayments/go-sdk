@@ -76,10 +76,6 @@ func (c *PaymentClient) VerifyIPN(r *http.Request) (*IPNVerificationResult, erro
 	}
 	defer r.Body.Close()
 
-	if c.cfg.HashMethod == "" {
-		return nil, ErrMissingHashMethod
-	}
-
 	token, err := jwt.Parse(verificationToken, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, ErrUnexpectedSigningToken

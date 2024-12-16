@@ -1,5 +1,4 @@
-
-  
+[![NETOPIA SDK Build](https://github.com/netopiapayments/go-sdk/actions/workflows/publish.yaml/badge.svg)](https://github.com/netopiapayments/go-sdk/actions/workflows/publish.yaml)  
 
 # NETOPIA Payments Go SDK
 
