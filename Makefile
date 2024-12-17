@@ -1,7 +1,10 @@
-.PHONY: lint check
+.PHONY: lint test check
 
 lint:
 	golangci-lint run ./...
 
-check: lint
+test: 
+	go test -v ./...
+
+check: lint test
 	@echo "All checks passed."

@@ -1,17 +1,19 @@
-name: NETOPIA SDK Build
+name: NETOPIA SDK Workflow
 
 on:
   push:
     branches:
       - main
+    tags:
+      - 'v*'  
   pull_request:
     branches:
       - main
-  workflow_dispatch:
-
+  workflow_dispatch:  # Allow manual trigger
+    
 jobs:
   analysis:
-    name: Running Code Analysis
+    name: Code Analysis
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -32,7 +34,7 @@ jobs:
       - name: Install Dependencies
         run: go mod tidy
 
-      # Run linting
+      # Run linter
       - name: Run Code Linter
         run: go vet ./...
 
@@ -50,6 +52,25 @@ jobs:
       - name: Run gosec
         run: gosec ./...
 
+  test:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    needs: analysis
+    steps:
+      # Checkout code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Setup Go
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: stable
+
+      # Install dependencies
+      - name: Install Dependencies
+        run: go mod tidy
+
       # Build application
       - name: Build Application
         run: go build -v ./...
@@ -57,3 +78,28 @@ jobs:
       # Run unit tests
       - name: Run Unit Tests
         run: go test ./... -v -coverprofile=coverage.out
+
+  release:
+    name: Create Github Release
+    if: github.ref_type == 'tag'  # Run only for tag pushes
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      # Checkout code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Extract tag name
+      - name: Get Tag Name
+        id: get_tag
+        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      # Create Release
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          name: Release ${{ env.TAG_NAME }}
+          body_path: ./CHANGELOG.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
