@@ -18,7 +18,6 @@ func main() {
 		NotifyURL:       "x",
 		RedirectURL:     "x", // Redirrect URL after payment
 		PublicKey:       []byte("-----BEGIN PUBLIC KEY-----\n...publickey...\n-----END PUBLIC KEY-----"),
-		ActiveKey:       "ACTIVEKEY",
 		PosSignatureSet: []string{""}, // A list of POS Signatures (allowed)
 	}
 
