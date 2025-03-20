@@ -9,7 +9,6 @@ type Config struct {
 	NotifyURL       string
 	RedirectURL     string
 	PublicKey       []byte
-	ActiveKey       string
 	PosSignatureSet []string
 	HashMethod      string
 }
@@ -29,9 +28,6 @@ func (c *Config) Validate() error {
 	}
 	if len(c.PublicKey) == 0 {
 		return fmt.Errorf("publicKey must be provided")
-	}
-	if c.ActiveKey == "" {
-		return fmt.Errorf("activeKey must be provided")
 	}
 	if c.HashMethod == "" {
 		c.HashMethod = "sha512" // implicit

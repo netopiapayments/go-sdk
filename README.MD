@@ -82,7 +82,6 @@ cfg := netopia.Config {
 	NotifyURL: "https://yourdomain.com/ipn",
 	RedirectURL: "https://yourdomain.com/redirect",
 	PublicKey: []byte("-----PUBLIC KEY-----"),
-	ActiveKey: "your-active-key",
 	PosSignatureSet: []string{"XXXX-XXXX-XXXX-XXXX"},
 	HashMethod: "sha512", // Default hash method
 }
@@ -107,7 +106,6 @@ The `Config` struct contains the following fields:
 | `NotifyURL` | `string` | Yes | The URL where IPNs (order updates) will be sent |
 | `RedirectURL` | `string` | Yes | The URL to redirect the customer after payment |
 | `PublicKey` | `[]byte` | Yes | RSA public key provided by NETOPIA for signature verification |
-| `ActiveKey` | `string` | Yes | Active key for your merchant account |
 | `PosSignatureSet`| `[]string`| Yes | List of allowed POS Signatures |
 | `HashMethod` | `string` | No | Hash method for IPN validation (default: `sha512`) |
 ---
