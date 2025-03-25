@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
+	"encoding/pem"
 	"io"
 	"net/http"
 	"strings"
@@ -65,10 +66,17 @@ func (c *PaymentClient) VerifyIPN(r *http.Request) (*IPNVerificationResult, erro
 		return nil, ErrWrongVerificationToken
 	}
 
-	publicKey, err := x509.ParsePKIXPublicKey(c.cfg.PublicKey)
+	block, _ := pem.Decode(c.cfg.PublicKey)
+	if block == nil || block.Type != "CERTIFICATE" {
+		return nil, ErrInvalidPublicKey
+	}
+
+	cert, err := x509.ParseCertificate(block.Bytes)
 	if err != nil {
 		return nil, ErrInvalidPublicKey
 	}
+
+	publicKey := cert.PublicKey
 
 	bodyData, err := io.ReadAll(r.Body)
 	if err != nil {

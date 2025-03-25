@@ -1,8 +1,6 @@
 package main
 
 import (
-	"time"
-
 	"github.com/netopiapayments/go-sdk/requests"
 
 	netopia "github.com/netopiapayments/go-sdk"
@@ -10,16 +8,14 @@ import (
 
 func main() {
 
-	// Initialize Netopia Client Configuration
 	cfg := netopia.Config{
-		ApiKey:          "APIKEY",
-		PosSignature:    "POSID", // POS Signature
-		IsLive:          false,   // false = sandbox | true = production
-		NotifyURL:       "x",
-		RedirectURL:     "x", // Redirrect URL after payment
-		PublicKey:       []byte("-----BEGIN PUBLIC KEY-----\n...publickey...\n-----END PUBLIC KEY-----"),
-		ActiveKey:       "ACTIVEKEY",
-		PosSignatureSet: []string{""}, // A list of POS Signatures (allowed)
+		ApiKey:          "gfcqLrjzcJGxxwiSDToGP9kOo3j1SemD_2cu13gwpmblql1QCeSfAhitc0o=",
+		PosSignature:    "2TEU-SJYL-Q9J8-2DMG-XRW3",
+		IsLive:          false,
+		NotifyURL:       "https://google.ro/",
+		RedirectURL:     "https://google.ro/",
+		PublicKey:       []byte("-----BEGIN CERTIFICATE-----MIIC3zCCAkigAwIBAgIBATANBgkqhkiG9w0BAQsFADCBiDELMAkGA1UEBhMCUk8xEjAQBgNVBAgTCUJ1Y2hhcmVzdDESMBAGA1UEBxMJQnVjaGFyZXN0MRAwDgYDVQQKEwdORVRPUElBMSEwHwYDVQQLExhORVRPUElBIERldmVsb3BtZW50IHRlYW0xHDAaBgNVBAMTE25ldG9waWEtcGF5bWVudHMucm8wHhcNMjUwMjI4MDY0MTAyWhcNMzUwMjI2MDY0MTAyWjCBiDELMAkGA1UEBhMCUk8xEjAQBgNVBAgTCUJ1Y2hhcmVzdDESMBAGA1UEBxMJQnVjaGFyZXN0MRAwDgYDVQQKEwdORVRPUElBMSEwHwYDVQQLExhORVRPUElBIERldmVsb3BtZW50IHRlYW0xHDAaBgNVBAMTE25ldG9waWEtcGF5bWVudHMucm8wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALwh0/NhEpZFuKvghZ9N75CXba05MWNCh422kcfFKbqP5YViCUBg3Mc5ZYd1e0Xi9Ui1QI2Z/jvvchrDZGQwjarApr3S9bowHEkZH81ZolOoPHBZbYpA28BIyHYRcaTXjLtiBGvjpwuzljmXeBoVLinIaE0IUpMen9MLWG2fGMddAgMBAAGjVzBVMA4GA1UdDwEB/wQEAwIFoDATBgNVHSUEDDAKBggrBgEFBQcDATAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBQ9yXChMGxzUzQflmkXT1oyIBoetTANBgkqhkiG9w0BAQsFAAOBgQCYzIorfGX/sehOpLJp0HDC3JUmqTeyZOO7k7FTaxegHzpN2cv54/RRTUiHo1Geufb9/EhveilD3dRgWQDPtkHLy1sF0+wD5trHsNP4NUdaLr8gv19VKd4u3sbgBfBcQ4gdcyCW+p0RbQkL5TbzWl/lF64yLhsZHysKOe1CazRlrg==-----END CERTIFICATE-----"),
+		PosSignatureSet: []string{""},
 	}
 
 	logger := &netopia.DefaultLogger{}
@@ -30,14 +26,11 @@ func main() {
 		return
 	}
 
-	// Prepare the StartPayment Request with necessary details
 	startReq := &requests.StartPaymentRequest{
 		Config: &requests.ConfigData{
-			EmailTemplate: "",                   // Email template for notifications
-			EmailSubject:  "",                   // Subject for the notification email
-			NotifyURL:     "http://google.com/", // Notification URL
-			RedirectURL:   "http://google.com/", // Redirect URL
-			Language:      "ro",                 // Language for notifications
+			Language:    "ro",
+			NotifyURL:   cfg.NotifyURL,
+			RedirectURL: cfg.RedirectURL,
 		},
 		Payment: &requests.PaymentData{
 			Options: requests.PaymentOptions{
@@ -45,67 +38,58 @@ func main() {
 				Bonus:        0,
 			},
 			Instrument: requests.PaymentInstrument{
-				Type:       "card",             // Payment type (e.g., card)
-				Account:    "9900518572831942", // Card number
-				ExpMonth:   11,                 // Card expiration month
-				ExpYear:    2025,               // Card expiration year
-				SecretCode: "111",              // Card CVC/CVV
+				Type:       "card",
+				Account:    "9900004810225098",
+				ExpMonth:   12,
+				ExpYear:    2025,
+				SecretCode: "111",
 				Token:      "",
 			},
 			Data: map[string]string{
-				// Browser and device data (required for 3DSecure payments)
-				"BROWSER_USER_AGENT":    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36",
-				"BROWSER_TZ":            "Europe/Bucharest",
-				"BROWSER_COLOR_DEPTH":   "32",
-				"BROWSER_JAVA_ENABLED":  "true",
-				"BROWSER_LANGUAGE":      "en-US,en;q=0.9",
-				"BROWSER_TZ_OFFSET":     "0",
-				"BROWSER_SCREEN_WIDTH":  "1200",
-				"BROWSER_SCREEN_HEIGHT": "1400",
-				"BROWSER_PLUGINS":       "Chrome PDF Plugin, Chrome PDF Viewer, Native Client",
-				"MOBILE":                "false",
-				"SCREEN_POINT":          "false",
-				"OS":                    "macOS",
-				"OS_VERSION":            "10.15.7 (32-bit)",
-				"IP_ADDRESS":            "127.0.0.1",
+				"BROWSER_USER_AGENT": "Mozilla/5.0",
+				"BROWSER_TZ":         "Europe/Bucharest",
 			},
 		},
 		Order: &requests.OrderData{
-			NtpID:        "",                                              // Leave empty for a new transaction
-			PosSignature: cfg.PosSignature,                                // POS signature (also known as POS ID) for this order
-			DateTime:     time.Now().UTC().Format("2006-01-02T15:04:05Z"), // Current date and time but can be any date in future
-			Description:  "DEMO API FROM WEB - SDK",                       // Order description
-			OrderID:      "8",                                             // Unique order ID
-			Amount:       0,                                               // Payment amount
-			Currency:     "RON",                                           // Currency
+			PosSignature: cfg.PosSignature,
+			DateTime:     "2024-12-12T14:30:00Z",
+			Description:  "Test Payment",
+			OrderID:      "ORDER-12347683",
+			Amount:       100.50,
+			Currency:     "RON",
 			Billing: requests.BillingShipping{
-				Email:       "client@test.com",
-				Phone:       "0000000",
-				FirstName:   "ClientPrenume",
-				LastName:    "ClientNume",
+				Email:       "client@example.com",
+				Phone:       "0741234567",
+				FirstName:   "John",
+				LastName:    "Doe",
 				City:        "Bucuresti",
 				Country:     642,
 				CountryName: "Romania",
 				State:       "Bucuresti",
-				PostalCode:  "246513",
-				Details:     "Fara Detalii",
+				PostalCode:  "010101",
+				Details:     "Test",
 			},
 			Shipping: requests.BillingShipping{
-				Email:       "client@test.com",
-				Phone:       "0000000",
-				FirstName:   "ClientPrenume",
-				LastName:    "ClientNume",
+				Email:       "client@example.com",
+				Phone:       "0741234567",
+				FirstName:   "John",
+				LastName:    "Doe",
 				City:        "Bucuresti",
 				Country:     642,
 				CountryName: "Romania",
 				State:       "Bucuresti",
-				PostalCode:  "246513",
-				Details:     "Fara Detalii",
+				PostalCode:  "010101",
+				Details:     "Test",
 			},
-			Products: []requests.Product{ // Product list for the order
-				{Name: "string", Code: "SKU", Category: "category", Price: 1, Vat: 19},
+			Products: []requests.Product{
+				{
+					Name:     "Test Product",
+					Code:     "PROD001",
+					Category: "Test Category",
+					Price:    100.50,
+					Vat:      19,
+				},
 			},
-			// Not Used
 			Installments: struct {
 				Selected  int   `json:"selected"`
 				Available []int `json:"available"`
@@ -118,11 +102,6 @@ func main() {
 				"property2": "string",
 			},
 		},
-	}
-
-	if err := startReq.Validate(); err != nil {
-		logger.Errorf("StartPaymentRequest validation failed:", err)
-		return
 	}
 
 	startResp, err := client.StartPayment(startReq)

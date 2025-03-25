@@ -12,12 +12,12 @@ func (c *PaymentClient) StartPayment(req *requests.StartPaymentRequest) (*respon
 		return nil, ErrInvalidOrder
 	}
 
-	req.Order.PosSignature = c.cfg.PosSignature
-	req.Config.NotifyURL = c.cfg.NotifyURL
-	req.Config.RedirectURL = c.cfg.RedirectURL
-
 	if req.Config.Language == "" {
 		req.Config.Language = "ro"
+	}
+
+	if err := req.Validate(); err != nil {
+		return nil, err
 	}
 
 	url := fmt.Sprintf("%s/payment/card/start", c.BaseURL())
